@@ -1,6 +1,6 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const path = require('path');
-const fs = require('fs');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const path = require('path')
+const fs = require('fs')
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -10,38 +10,49 @@ function createWindow() {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true
     }
-  });
- 
+  })
+
   if (process.env.NODE_ENV === 'development') {
-    win.loadURL('http://localhost:5173');
+    win.loadURL('http://localhost:5173')
   } else {
-    win.loadFile(path.join(__dirname, '../renderer/index.html'));
+    win.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(createWindow)
 
 ipcMain.handle('select-folders', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openDirectory', 'multiSelections' ]
-  });
+  const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
 
-  if (result.canceled) return [];
+  if (!result.canceled) {
+    const folderPath = result.filePaths[0]
+    const pdfFiles = fs
+      .readdirSync(folderPath)
+      .filter((file) => file.endsWith('.pdf'))
+      .map((file) => path.join(folderPath, file))
 
-  const pdfPaths = [];
+    return pdfFiles
+  }
 
-  for (const folder of result.filePaths) {
-    const files = fs.readdirSync(folder);
-    for (const file of files) {
-      if (file.toLowerCase().endsWith('.pdf')) {
-        pdfPaths.push(path.join(folder, file));
-      }
+  return []
+})
+
+ipcMain.handle('get-selected-pdf-base64', async (event, paths) => {
+  const results = []
+
+  for (const filePath of paths) {
+    if (fs.existsSync(filePath)) {
+      const buffer = fs.readFileSync(filePath)
+      results.push({
+        name: path.basename(filePath),
+        data: buffer.toString('base64')
+      })
     }
   }
 
-  return pdfPaths;
-});
+  return results
+})
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
+  if (process.platform !== 'darwin') app.quit()
+})
