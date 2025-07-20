@@ -5,7 +5,7 @@ import { useState } from "react";
 function Home() {
   const [pdfPaths, setPdfPaths] = useState([]);
   const [selectedPdfPaths, setSelectedPdfPaths] = useState([]);
-  const { setPdfDataList } = usePdf(); // from context
+  const { setPdfDataList } = usePdf(); 
   const navigate = useNavigate();
 
   const handleSelectFolders = async () => {
@@ -28,10 +28,9 @@ function Home() {
       return;
     }
     console.log("Selected PDF Paths:", selectedPdfPaths);
-    // Ask Electron to send base64 content of selected files
+    
     const pdfData = await window.electronAPI.getSelectedPdfBase64(selectedPdfPaths);
 
-    // Store in context
     setPdfDataList(pdfData);
     localStorage.setItem("pdfDataList", JSON.stringify(pdfData));
 
