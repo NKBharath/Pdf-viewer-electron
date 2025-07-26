@@ -1,79 +1,71 @@
-import { useNavigate } from "react-router-dom";
-import { usePdf } from "../context/PdfSelectContext";
-import { useState } from "react";
-
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { usePdf } from '../context/PdfSelectContext';
 function Home() {
   const [pdfPaths, setPdfPaths] = useState([]);
   const [selectedPdfPaths, setSelectedPdfPaths] = useState([]);
-  const { setPdfDataList } = usePdf(); 
+  const { setPdfDataList } = usePdf();
   const navigate = useNavigate();
 
   const handleSelectFolders = async () => {
     if (!window.electronAPI) {
-      alert("Electron API not available");
+      alert('Electron API not available');
       return;
     }
-
     const paths = await window.electronAPI.selectFolders();
     setPdfPaths(paths);
   };
 
-  const handlePdfSelect = (pdfPath) => {
-    setSelectedPdfPaths((prev) => [...prev, pdfPath]);
-  };
+  const handlePdfSelect = (file) => {
+  setSelectedPdfPaths((prev) =>
+    prev.some((f) => f.path === file.path) ? prev : [...prev, file]
+  );
+};
 
-  const handleContinue = async () => {
-    if (selectedPdfPaths.length === 0) {
-      alert("No files selected!");
-      return;
-    }
-    console.log("Selected PDF Paths:", selectedPdfPaths);
-    
-    const pdfData = await window.electronAPI.getSelectedPdfBase64(selectedPdfPaths);
+ const handleContinue = () => {
+  if (selectedPdfPaths.length === 0) {
+    alert('No PDFs selected');
+    return;
+  }
+  console.log(selectedPdfPaths);
+  setPdfDataList(selectedPdfPaths);
+  navigate("/selected");
 
-    setPdfDataList(pdfData);
-    localStorage.setItem("pdfDataList", JSON.stringify(pdfData));
+};
 
-
-    setTimeout(() => {
-    navigate("/selected");
-  }, 100);
-  };
 
   return (
-    <div className="min-w-full bg-black p-4">
-      
-      <button onClick={handleSelectFolders}>Select Folder</button>
+    <div className="p-6 bg-gray-900 min-h-screen text-white">
+      <h1 className="text-2xl font-bold mb-4">📂 Select PDF Folder</h1>
 
-      <table className="min-w-full bg-black">
+      <button onClick={handleSelectFolders}>
+        Browse Folder
+      </button>
+
+      <table className="w-full text-left border-t border-gray-600">
         <thead>
           <tr>
-            <th>S.no</th>
-            <th>✅</th>
-            <th>Name</th>
+            <th className="p-2">S.no</th>
+            <th className="p-2">✅</th>
+            <th className="p-2">File Name</th>
           </tr>
         </thead>
         <tbody>
-          {pdfPaths.map((file, index) => (
+          {pdfPaths.map((filePath, index) => (
             <tr key={index}>
-              <td>{index + 1}</td>
-              <td>
-                <button onClick={() => handlePdfSelect(file)}>Select</button>
+              <td className="p-2">{index + 1}</td>
+              <td className="p-2">
+                <button onClick={() => handlePdfSelect(filePath)} >
+                  Select
+                </button>
               </td>
-              
-            <td>
-              {typeof file === "string"
-              ? file.split(/[\\/]/).pop()
-              : file?.path?.split(/[\\/]/).pop() || "Unnamed"}
-            </td>
-
-
+              <td className="p-2"> {filePath.name} </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <button onClick={handleContinue}>Continue</button>
+      <button onClick={handleContinue}> Continue </button>
     </div>
   );
 }

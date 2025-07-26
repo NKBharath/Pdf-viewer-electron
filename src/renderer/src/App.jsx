@@ -4,12 +4,10 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/home'; 
 function App() {
   return (
-    <PdfProvider>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/selected" element={<SelectedPdf />} />
+        <Route path="/selected" element={<SelectedPdf  />} />
       </Routes>
-    </PdfProvider>
   );
 }
 
