@@ -41,12 +41,11 @@ function Home() {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial", backgroundColor: "#f0f0f0" }}>
-      <h1>📁 PDF Folder Viewer</h1>
-      <button onClick={handleSelectFolders}>Display Folder</button>
+    <div className="min-w-full bg-black p-4">
+      
+      <button onClick={handleSelectFolders}>Select Folder</button>
 
-      <h2>📄 PDF Files:</h2>
-      <table>
+      <table className="min-w-full bg-black">
         <thead>
           <tr>
             <th>S.no</th>

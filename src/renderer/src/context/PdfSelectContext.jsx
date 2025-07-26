@@ -7,7 +7,7 @@ export const PdfProvider = ({ children }) => {
   const saved = localStorage.getItem("pdfDataList");
   return saved ? JSON.parse(saved) : [];
 });
-  console.log("PdfProvider initialized with empty pdfDataList", pdfDataList);
+  
   return (
     <PdfContext.Provider value={{ pdfDataList, setPdfDataList }}>
       {children}
